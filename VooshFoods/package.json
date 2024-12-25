@@ -1,0 +1,36 @@
+{
+  "name": "music-library-api",
+  "version": "1.0.0",
+  "description": "RESTful API for managing music libraries with authentication and role-based access control.",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "nodemon index.js"
+  },
+  "keywords": [
+    "music-library",
+    "REST API",
+    "nodejs",
+    "sequelize",
+    "express"
+  ],
+  "author": "Matru Prasad Satrujit",
+  "license": "ISC",
+  "dependencies": {
+    "bcrypt": "^5.1.1",
+    "bcryptjs": "^2.4.3",
+    "body-parser": "^1.20.2",
+    "cors": "^2.8.5",
+    "dotenv": "^16.0.3",
+    "express": "^4.18.2",
+    "http-errors": "^2.0.0",
+    "jsonwebtoken": "^9.0.0",
+    "music-library-api": "file:",
+    "mysql2": "^3.4.0",
+    "sequelize": "^6.32.1"
+  },
+  "devDependencies": {
+    "eslint": "^8.57.1",
+    "nodemon": "^3.1.9"
+  }
+}

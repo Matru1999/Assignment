@@ -1,0 +1,968 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Music Library Management</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #f4f4f4;
+    }
+    .container {
+      width: 80%;
+      margin: auto;
+      overflow: hidden;
+    }
+    header {
+      background: #333;
+      color: #fff;
+      padding-top: 30px;
+      min-height: 70px;
+      border-bottom: #77aaff 3px solid;
+    }
+    header a {
+      color: #fff;
+      text-decoration: none;
+      text-transform: uppercase;
+      font-size: 16px;
+    }
+    header ul {
+      padding: 0;
+      list-style: none;
+    }
+    header li {
+      float: left;
+      display: inline;
+      padding: 0 20px 0 20px;
+    }
+    header #branding {
+      float: left;
+    }
+    header #branding h1 {
+      margin: 0;
+    }
+    header nav {
+      float: right;
+      margin-top: 10px;
+    }
+    .content {
+      padding: 20px;
+      background: #fff;
+      margin-top: 20px;
+    }
+    .content h2 {
+      margin-top: 0;
+    }
+    .login-form, .signup-form, .add-user-form, .delete-user-form, .update-password-form, .fetch-artists-form {
+      max-width: 300px;
+      margin: auto;
+    }
+    .login-form input, .signup-form input, .add-user-form input, .delete-user-form input, .update-password-form input, .fetch-artists-form input {
+      width: 100%;
+      padding: 10px;
+      margin: 10px 0;
+    }
+    .login-form button, .signup-form button, .add-user-form button, .delete-user-form button, .update-password-form button, .fetch-artists-form button {
+      width: 100%;
+      padding: 10px;
+      background: #333;
+      color: #fff;
+      border: none;
+    }
+    .message {
+      margin-top: 10px;
+      padding: 10px;
+      border: 1px solid #ccc;
+      background-color: #f9f9f9;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="container">
+      <div id="branding">
+        <h1>Music Library Management</h1>
+      </div>
+      <nav>
+        <ul>
+          <li><a href="#" onclick="showSection('home')">Home</a></li>
+          <li><a href="#" onclick="showSection('auth')">Auth</a></li>
+          <li><a href="#" onclick="showSection('signup')">Signup</a></li>
+          <li><a href="#" onclick="showSection('users')">Users</a></li>
+          <li><a href="#" onclick="showSection('artists')">Artists</a></li>
+          <li><a href="#" onclick="showSection('albums')">Albums</a></li>
+          <li><a href="#" onclick="showSection('tracks')">Tracks</a></li>
+          <li><a href="#" onclick="showSection('favorites')">Favorites</a></li>
+          <li><a href="#" onclick="showSection('add-user')">Add User</a></li>
+          <li><a href="#" onclick="showSection('delete-user')">Delete User</a></li>
+          <li><a href="#" onclick="showSection('update-password')">Update Password</a></li>
+          <li><a href="#" onclick="logout()">Logout</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <div class="container">
+    <div id="signup" class="content">
+      <h2>Signup</h2>
+      <div class="signup-form">
+        <input type="text" id="signup-email" placeholder="Email">
+        <input type="password" id="signup-password" placeholder="Password">
+        <button onclick="signup()">Signup</button>
+        <div id="signup-message" class="message" style="display:none;"></div>
+      </div>
+    </div>
+    <div id="auth" class="content" style="display:none;">
+      <h2>Login</h2>
+      <div class="login-form">
+        <input type="text" id="email" placeholder="Email">
+        <input type="password" id="password" placeholder="Password">
+        <button onclick="login()">Login</button>
+        <div id="login-message" class="message" style="display:none;"></div>
+      </div>
+    </div>
+    <div id="home" class="content" style="display:none;">
+      <h2>Welcome to the Music Library Management API</h2>
+      <p>This is a mock UI to demonstrate the functionality of the Music Library Management API.</p>
+      <button onclick="fetchUsers()">Fetch Users</button>
+      <div id="users-message" class="message" style="display:none;"></div>
+      <div id="users-list"></div>
+    </div>
+    <div id="users" class="content" style="display:none;">
+      <h2>Users</h2>
+      <button onclick="fetchUsers()">Fetch Users</button>
+      <div id="users-message" class="message" style="display:none;"></div>
+      <div id="users-list"></div>
+    </div>
+    <div id="artists" class="content" style="display:none;">
+      <h2>Artists</h2>
+      <div class="fetch-artists-form">
+        <input type="number" id="artists-number-of-records" placeholder="Number of records to fetch">
+        <input type="number" id="artists-number-of-records-to-skip" placeholder="Number of records to skip">
+        <input type="number" id="artists-grammy-awards" placeholder="Filter by Grammy awards">
+        <input type="text" id="artists-visibility-status" placeholder="Filter by visibility status (true/false)">
+        <button onclick="fetchArtists()">Fetch Artists</button>
+        <div id="artists-message" class="message" style="display:none;"></div>
+        <div id="artists-list"></div>
+      </div>
+      <div class="fetch-artist-form">
+        <input type="text" id="artist-id" placeholder="Artist ID">
+        <button onclick="fetchArtist()">Fetch Artist</button>
+        <div id="artist-message" class="message" style="display:none;"></div>
+        <div id="artist-details"></div>
+      </div>
+      <div class="add-artist-form">
+        <input type="text" id="artist-name" placeholder="Artist Name">
+        <input type="number" id="artist-grammy" placeholder="Grammy">
+        <input type="text" id="artist-hidden" placeholder="Hidden (true/false)">
+        <button onclick="addArtist()">Add Artist</button>
+        <div id="add-artist-message" class="message" style="display:none;"></div>
+      </div>
+      <div class="update-artist-form">
+        <input type="text" id="update-artist-id" placeholder="Artist ID">
+        <input type="text" id="update-artist-name" placeholder="Artist Name">
+        <input type="number" id="update-artist-grammy" placeholder="Grammy">
+        <input type="text" id="update-artist-hidden" placeholder="Hidden (true/false)">
+        <button onclick="updateArtist()">Update Artist</button>
+        <div id="update-artist-message" class="message" style="display:none;"></div>
+      </div>
+      <div class="delete-artist-form">
+        <input type="text" id="delete-artist-id" placeholder="Artist ID">
+        <button onclick="deleteArtist()">Delete Artist</button>
+        <div id="delete-artist-message" class="message" style="display:none;"></div>
+      </div>
+    </div>
+    <div id="albums" class="content" style="display:none;">
+      <h2>Albums</h2>
+      <div class="fetch-albums-form">
+        <input type="number" id="albums-number-of-records" placeholder="Number of records to fetch">
+        <input type="number" id="albums-number-of-records-to-skip" placeholder="Number of records to skip">
+        <input type="text" id="albums-artist-id" placeholder="Filter by artist ID">
+        <input type="text" id="albums-visibility-status" placeholder="Filter by visibility status (true/false)">
+        <button onclick="fetchAlbums()">Fetch Albums</button>
+        <div id="albums-message" class="message" style="display:none;"></div>
+        <div id="albums-list"></div>
+      </div>
+      <div class="fetch-album-form">
+        <input type="text" id="album-id" placeholder="Album ID">
+        <button onclick="fetchAlbum()">Fetch Album</button>
+        <div id="album-message" class="message" style="display:none;"></div>
+        <div id="album-details"></div>
+      </div>
+      <div class="add-album-form">
+        <input type="text" id="add-album-artist-id" placeholder="Artist ID">
+        <input type="text" id="add-album-name" placeholder="Album Name">
+        <input type="number" id="add-album-year" placeholder="Year">
+        <input type="text" id="add-album-hidden" placeholder="Hidden (true/false)">
+        <button onclick="addAlbum()">Add Album</button>
+        <div id="add-album-message" class="message" style="display:none;"></div>
+      </div>
+      <div class="update-album-form">
+        <input type="text" id="update-album-id" placeholder="Album ID">
+        <input type="text" id="update-album-name" placeholder="Album Name">
+        <input type="number" id="update-album-year" placeholder="Year">
+        <input type="text" id="update-album-hidden" placeholder="Hidden (true/false)">
+        <button onclick="updateAlbum()">Update Album</button>
+        <div id="update-album-message" class="message" style="display:none;"></div>
+      </div>
+      <div class="delete-album-form">
+        <input type="text" id="delete-album-id" placeholder="Album ID">
+        <button onclick="deleteAlbum()">Delete Album</button>
+        <div id="delete-album-message" class="message" style="display:none;"></div>
+      </div>
+    </div>
+    <div id="tracks" class="content" style="display:none;">
+      <h2>Tracks</h2>
+      <div class="fetch-tracks-form">
+        <input type="number" id="tracks-number-of-records" placeholder="Number of records to fetch">
+        <input type="number" id="tracks-number-of-records-to-skip" placeholder="Number of records to skip">
+        <input type="text" id="tracks-artist-id" placeholder="Filter by artist ID">
+        <input type="text" id="tracks-album-id" placeholder="Filter by album ID">
+        <input type="text" id="tracks-visibility-status" placeholder="Filter by visibility status (true/false)">
+        <button onclick="fetchTracks()">Fetch Tracks</button>
+        <div id="tracks-message" class="message" style="display:none;"></div>
+        <div id="tracks-list"></div>
+      </div>
+      <div class="fetch-track-form">
+        <input type="text" id="track-id" placeholder="Track ID">
+        <button onclick="fetchTrack()">Fetch Track</button>
+        <div id="track-message" class="message" style="display:none;"></div>
+        <div id="track-details"></div>
+      </div>
+      <div class="add-track-form">
+        <input type="text" id="add-track-artist-id" placeholder="Artist ID">
+        <input type="text" id="add-track-album-id" placeholder="Album ID">
+        <input type="text" id="add-track-name" placeholder="Track Name">
+        <input type="number" id="add-track-duration" placeholder="Duration">
+        <input type="text" id="add-track-hidden" placeholder="Hidden (true/false)">
+        <button onclick="addTrack()">Add Track</button>
+        <div id="add-track-message" class="message" style="display:none;"></div>
+      </div>
+      <div class="update-track-form">
+        <input type="text" id="update-track-id" placeholder="Track ID">
+        <input type="text" id="update-track-name" placeholder="Track Name">
+        <input type="number" id="update-track-duration" placeholder="Duration">
+        <input type="text" id="update-track-hidden" placeholder="Hidden (true/false)">
+        <button onclick="updateTrack()">Update Track</button>
+        <div id="update-track-message" class="message" style="display:none;"></div>
+      </div>
+      <div class="delete-track-form">
+        <input type="text" id="delete-track-id" placeholder="Track ID">
+        <button onclick="deleteTrack()">Delete Track</button>
+        <div id="delete-track-message" class="message" style="display:none;"></div>
+      </div>
+    </div>
+    <div id="favorites" class="content" style="display:none;">
+      <h2>Favorites</h2>
+      <div class="fetch-favorites-form">
+        <input type="text" id="favorites-category" placeholder="Category (artist, album, track)">
+        <input type="number" id="favorites-number-of-records" placeholder="Number of records to fetch">
+        <input type="number" id="favorites-number-of-records-to-skip" placeholder="Number of records to skip">
+        <button onclick="fetchFavorites()">Fetch Favorites</button>
+        <div id="favorites-message" class="message" style="display:none;"></div>
+        <div id="favorites-list"></div>
+      </div>
+      <div class="add-favorite-form">
+        <input type="text" id="add-favorite-category" placeholder="Category (artist, album, track)">
+        <input type="text" id="add-favorite-item-id" placeholder="Item ID">
+        <button onclick="addFavorite()">Add Favorite</button>
+        <div id="add-favorite-message" class="message" style="display:none;"></div>
+      </div>
+      <div class="delete-favorite-form">
+        <input type="text" id="delete-favorite-id" placeholder="Favorite ID">
+        <button onclick="deleteFavorite()">Delete Favorite</button>
+        <div id="delete-favorite-message" class="message" style="display:none;"></div>
+      </div>
+    </div>
+    <div id="add-user" class="content" style="display:none;">
+      <h2>Add User</h2>
+      <div class="add-user-form">
+        <input type="text" id="add-user-email" placeholder="Email">
+        <input type="password" id="add-user-password" placeholder="Password">
+        <input type="text" id="add-user-role" placeholder="Role (editor/viewer)">
+        <button onclick="addUser()">Add User</button>
+        <div id="add-user-message" class="message" style="display:none;"></div>
+      </div>
+    </div>
+    <div id="delete-user" class="content" style="display:none;">
+      <h2>Delete User</h2>
+      <div class="delete-user-form">
+        <input type="text" id="delete-user-id" placeholder="User ID">
+        <button onclick="deleteUser()">Delete User</button>
+        <div id="delete-user-message" class="message" style="display:none;"></div>
+      </div>
+    </div>
+    <div id="update-password" class="content" style="display:none;">
+      <h2>Update Password</h2>
+      <div class="update-password-form">
+        <input type="password" id="old-password" placeholder="Old Password">
+        <input type="password" id="new-password" placeholder="New Password">
+        <button onclick="updatePassword()">Update Password</button>
+        <div id="update-password-message" class="message" style="display:none;"></div>
+      </div>
+    </div>
+    <div id="logout-message" class="message" style="display:none;"></div>
+  </div>
+
+  <script>
+    function showSection(sectionId) {
+      const sections = document.querySelectorAll('.content');
+      sections.forEach(section => {
+        section.style.display = 'none';
+      });
+      document.getElementById(sectionId).style.display = 'block';
+    }
+
+    function signup() {
+      const email = document.getElementById('signup-email').value;
+      const password = document.getElementById('signup-password').value;
+
+      fetch('/auth/signup', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ email, password })
+      })
+      .then(response => response.json())
+      .then(data => {
+        console.log(data); // Log the JSON response to the console
+        const messageDiv = document.getElementById('signup-message');
+        messageDiv.style.display = 'block';
+        messageDiv.innerHTML = `<pre>${JSON.stringify(data, null, 2)}</pre>`;
+      });
+    }
+
+    function login() {
+      const email = document.getElementById('email').value;
+      const password = document.getElementById('password').value;
+
+      fetch('/auth/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ email, password })
+      })
+      .then(response => response.json())
+      .then(data => {
+        console.log(data); // Log the JSON response to the console
+        const messageDiv = document.getElementById('login-message');
+        messageDiv.style.display = 'block';
+        messageDiv.innerHTML = `<pre>${JSON.stringify(data, null, 2)}</pre>`;
+        if (data.status === 200) {
+          localStorage.setItem('token', data.data.token); // Store the token
+          showSection('home'); // Show home page after successful login
+          startInactivityTimer();
+        }
+      });
+    }
+
+    function fetchUsers() {
+      const token = localStorage.getItem('token'); // Retrieve the token
+      fetch('/users?limit=5&offset=0&role=Editor', {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        }
+      })
+      .then(response => response.json())
+      .then(data => {
+        console.log(data); // Log the JSON response to the console
+        const messageDiv = document.getElementById('users-message');
+        const usersList = document.getElementById('users-list');
+        messageDiv.style.display = 'block';
+        messageDiv.innerHTML = `<pre>${JSON.stringify(data, null, 2)}</pre>`;
+        if (data.status === 200) {
+          usersList.innerHTML = `<pre>${JSON.stringify(data.data, null, 2)}</pre>`;
+        }
+      });
+    }
+
+    function addUser() {
+      const email = document.getElementById('add-user-email').value;
+      const password = document.getElementById('add-user-password').value;
+      const role = document.getElementById('add-user-role').value;
+
+      const token = localStorage.getItem('token'); // Retrieve the token
+      fetch('/users/add-user', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ email, password, role })
+      })
+      .then(response => response.json())
+      .then(data => {
+        console.log(data); // Log the JSON response to the console
+        const messageDiv = document.getElementById('add-user-message');
+        messageDiv.style.display = 'block';
+        messageDiv.innerHTML = `<pre>${JSON.stringify(data, null, 2)}</pre>`;
+      });
+    }
+
+    function deleteUser() {
+      const userId = document.getElementById('delete-user-id').value;
+
+      const token = localStorage.getItem('token'); // Retrieve the token
+      fetch(`/users/${userId}`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        }
+      })
+      .then(response => response.json())
+      .then(data => {
+        console.log(data); // Log the JSON response to the console
+        const messageDiv = document.getElementById('delete-user-message');
+        messageDiv.style.display = 'block';
+        messageDiv.innerHTML = `<pre>${JSON.stringify(data, null, 2)}</pre>`;
+      });
+    }
+
+    function updatePassword() {
+      const oldPassword = document.getElementById('old-password').value;
+      const newPassword = document.getElementById('new-password').value;
+
+      const token = localStorage.getItem('token'); // Retrieve the token
+      fetch('/users/update-password', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ old_password: oldPassword, new_password: newPassword })
+      })
+      .then(response => {
+        const messageDiv = document.getElementById('update-password-message');
+        messageDiv.style.display = 'block';
+        if (response.status === 204) {
+          messageDiv.innerHTML = 'Password updated successfully.';
+        } else {
+          return response.json().then(data => {
+            messageDiv.innerHTML = `<pre>${JSON.stringify(data, null, 2)}</pre>`;
+          });
+        }
+      });
+    }
+
+    function fetchArtists() {
+      const limit = document.getElementById('artists-number-of-records').value || 5;
+      const offset = document.getElementById('artists-number-of-records-to-skip').value || 0;
+      const grammy = document.getElementById('artists-grammy-awards').value;
+      const hidden = document.getElementById('artists-visibility-status').value;
+
+      const token = localStorage.getItem('token'); // Retrieve the token
+      let url = `/artists?limit=${limit}&offset=${offset}`;
+      if (grammy) {
+        url += `&grammy=${grammy}`;
+      }
+      if (hidden) {
+        url += `&hidden=${hidden}`;
+      }
+
+      fetch(url, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        }
+      })
+      .then(response => response.json())
+      .then(data => {
+        console.log(data); // Log the JSON response to the console
+        const messageDiv = document.getElementById('artists-message');
+        const artistsList = document.getElementById('artists-list');
+        messageDiv.style.display = 'block';
+        messageDiv.innerHTML = `<pre>${JSON.stringify(data, null, 2)}</pre>`;
+        if (data.status === 200) {
+          artistsList.innerHTML = `<pre>${JSON.stringify(data.data, null, 2)}</pre>`;
+        }
+      });
+    }
+
+    function fetchArtist() {
+      const artistId = document.getElementById('artist-id').value;
+      const token = localStorage.getItem('token'); // Retrieve the token
+
+      fetch(`/artists/${artistId}`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        }
+      })
+      .then(response => response.json())
+      .then(data => {
+        console.log(data); // Log the JSON response to the console
+        const messageDiv = document.getElementById('artist-message');
+        const artistDetails = document.getElementById('artist-details');
+        messageDiv.style.display = 'block';
+        messageDiv.innerHTML = `<pre>${JSON.stringify(data, null, 2)}</pre>`;
+        if (data.status === 200) {
+          artistDetails.innerHTML = `<pre>${JSON.stringify(data.data, null, 2)}</pre>`;
+        }
+      });
+    }
+
+    function addArtist() {
+      const name = document.getElementById('artist-name').value;
+      const grammy = document.getElementById('artist-grammy').value;
+      const hidden = document.getElementById('artist-hidden').value === 'true';
+
+      const token = localStorage.getItem('token'); // Retrieve the token
+
+      fetch('/artists/add-artist', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ name, grammy, hidden })
+      })
+      .then(response => response.json())
+      .then(data => {
+        console.log(data); // Log the JSON response to the console
+        const messageDiv = document.getElementById('add-artist-message');
+        messageDiv.style.display = 'block';
+        messageDiv.innerHTML = `<pre>${JSON.stringify(data, null, 2)}</pre>`;
+      });
+    }
+
+    function updateArtist() {
+      const artistId = document.getElementById('update-artist-id').value;
+      const name = document.getElementById('update-artist-name').value;
+      const grammy = document.getElementById('update-artist-grammy').value;
+      const hidden = document.getElementById('update-artist-hidden').value === 'true';
+
+      const token = localStorage.getItem('token'); // Retrieve the token
+
+      fetch(`/artists/${artistId}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ name, grammy, hidden })
+      })
+      .then(response => {
+        const messageDiv = document.getElementById('update-artist-message');
+        messageDiv.style.display = 'block';
+        if (response.status === 204) {
+          messageDiv.innerHTML = 'Artist updated successfully.';
+        } else {
+          return response.json().then(data => {
+            messageDiv.innerHTML = `<pre>${JSON.stringify(data, null, 2)}</pre>`;
+          });
+        }
+      });
+    }
+
+    function deleteArtist() {
+      const artistId = document.getElementById('delete-artist-id').value;
+      const token = localStorage.getItem('token'); // Retrieve the token
+
+      fetch(`/artists/${artistId}`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        }
+      })
+      .then(response => response.json())
+      .then(data => {
+        console.log(data); // Log the JSON response to the console
+        const messageDiv = document.getElementById('delete-artist-message');
+        messageDiv.style.display = 'block';
+        messageDiv.innerHTML = `<pre>${JSON.stringify(data, null, 2)}</pre>`;
+      });
+    }
+
+    function fetchAlbums() {
+      const limit = document.getElementById('albums-number-of-records').value || 5;
+      const offset = document.getElementById('albums-number-of-records-to-skip').value || 0;
+      const artistId = document.getElementById('albums-artist-id').value;
+      const hidden = document.getElementById('albums-visibility-status').value;
+
+      const token = localStorage.getItem('token'); // Retrieve the token
+      let url = `/albums?limit=${limit}&offset=${offset}`;
+      if (artistId) {
+        url += `&artist_id=${artistId}`;
+      }
+      if (hidden) {
+        url += `&hidden=${hidden}`;
+      }
+
+      fetch(url, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        }
+      })
+      .then(response => response.json())
+      .then(data => {
+        console.log(data); // Log the JSON response to the console
+        const messageDiv = document.getElementById('albums-message');
+        const albumsList = document.getElementById('albums-list');
+        messageDiv.style.display = 'block';
+        messageDiv.innerHTML = `<pre>${JSON.stringify(data, null, 2)}</pre>`;
+        if (data.status === 200) {
+          albumsList.innerHTML = `<pre>${JSON.stringify(data.data, null, 2)}</pre>`;
+        }
+      });
+    }
+
+    function fetchAlbum() {
+      const albumId = document.getElementById('album-id').value;
+      const token = localStorage.getItem('token'); // Retrieve the token
+
+      fetch(`/albums/${albumId}`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        }
+      })
+      .then(response => response.json())
+      .then(data => {
+        console.log(data); // Log the JSON response to the console
+        const messageDiv = document.getElementById('album-message');
+        const albumDetails = document.getElementById('album-details');
+        messageDiv.style.display = 'block';
+        messageDiv.innerHTML = `<pre>${JSON.stringify(data, null, 2)}</pre>`;
+        if (data.status === 200) {
+          albumDetails.innerHTML = `<pre>${JSON.stringify(data.data, null, 2)}</pre>`;
+        }
+      });
+    }
+
+    function addAlbum() {
+      const artistId = document.getElementById('add-album-artist-id').value;
+      const name = document.getElementById('add-album-name').value;
+      const year = document.getElementById('add-album-year').value;
+      const hidden = document.getElementById('add-album-hidden').value === 'true';
+
+      const token = localStorage.getItem('token'); // Retrieve the token
+
+      fetch('/albums/add-album', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ artist_id: artistId, name, year, hidden })
+      })
+      .then(response => response.json())
+      .then(data => {
+        console.log(data); // Log the JSON response to the console
+        const messageDiv = document.getElementById('add-album-message');
+        messageDiv.style.display = 'block';
+        messageDiv.innerHTML = `<pre>${JSON.stringify(data, null, 2)}</pre>`;
+      });
+    }
+
+    function updateAlbum() {
+      const albumId = document.getElementById('update-album-id').value;
+      const name = document.getElementById('update-album-name').value;
+      const year = document.getElementById('update-album-year').value;
+      const hidden = document.getElementById('update-album-hidden').value === 'true';
+
+      const token = localStorage.getItem('token'); // Retrieve the token
+
+      fetch(`/albums/${albumId}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ name, year, hidden })
+      })
+      .then(response => {
+        const messageDiv = document.getElementById('update-album-message');
+        messageDiv.style.display = 'block';
+        if (response.status === 204) {
+          messageDiv.innerHTML = 'Album updated successfully.';
+        } else {
+          return response.json().then(data => {
+            messageDiv.innerHTML = `<pre>${JSON.stringify(data, null, 2)}</pre>`;
+          });
+        }
+      });
+    }
+
+    function deleteAlbum() {
+      const albumId = document.getElementById('delete-album-id').value;
+      const token = localStorage.getItem('token'); // Retrieve the token
+
+      fetch(`/albums/${albumId}`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        }
+      })
+      .then(response => response.json())
+      .then(data => {
+        console.log(data); // Log the JSON response to the console
+        const messageDiv = document.getElementById('delete-album-message');
+        messageDiv.style.display = 'block';
+        messageDiv.innerHTML = `<pre>${JSON.stringify(data, null, 2)}</pre>`;
+      });
+    }
+
+    function fetchTracks() {
+      const limit = document.getElementById('tracks-number-of-records').value || 5;
+      const offset = document.getElementById('tracks-number-of-records-to-skip').value || 0;
+      const artistId = document.getElementById('tracks-artist-id').value;
+      const albumId = document.getElementById('tracks-album-id').value;
+      const hidden = document.getElementById('tracks-visibility-status').value;
+
+      const token = localStorage.getItem('token'); // Retrieve the token
+      let url = `/tracks?limit=${limit}&offset=${offset}`;
+      if (artistId) {
+        url += `&artist_id=${artistId}`;
+      }
+      if (albumId) {
+        url += `&album_id=${albumId}`;
+      }
+      if (hidden) {
+        url += `&hidden=${hidden}`;
+      }
+
+      fetch(url, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        }
+      })
+      .then(response => response.json())
+      .then(data => {
+        console.log(data); // Log the JSON response to the console
+        const messageDiv = document.getElementById('tracks-message');
+        const tracksList = document.getElementById('tracks-list');
+        messageDiv.style.display = 'block';
+        messageDiv.innerHTML = `<pre>${JSON.stringify(data, null, 2)}</pre>`;
+        if (data.status === 200) {
+          tracksList.innerHTML = `<pre>${JSON.stringify(data.data, null, 2)}</pre>`;
+        }
+      });
+    }
+
+    function fetchTrack() {
+      const trackId = document.getElementById('track-id').value;
+      const token = localStorage.getItem('token'); // Retrieve the token
+
+      fetch(`/tracks/${trackId}`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        }
+      })
+      .then(response => response.json())
+      .then(data => {
+        console.log(data); // Log the JSON response to the console
+        const messageDiv = document.getElementById('track-message');
+        const trackDetails = document.getElementById('track-details');
+        messageDiv.style.display = 'block';
+        messageDiv.innerHTML = `<pre>${JSON.stringify(data, null, 2)}</pre>`;
+        if (data.status === 200) {
+          trackDetails.innerHTML = `<pre>${JSON.stringify(data.data, null, 2)}</pre>`;
+        }
+      });
+    }
+
+    function addTrack() {
+      const artistId = document.getElementById('add-track-artist-id').value;
+      const albumId = document.getElementById('add-track-album-id').value;
+      const name = document.getElementById('add-track-name').value;
+      const duration = document.getElementById('add-track-duration').value;
+      const hidden = document.getElementById('add-track-hidden').value === 'true';
+
+      const token = localStorage.getItem('token'); // Retrieve the token
+
+      fetch('/tracks/add-track', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ artist_id: artistId, album_id: albumId, name, duration, hidden })
+      })
+      .then(response => response.json())
+      .then(data => {
+        console.log(data); // Log the JSON response to the console
+        const messageDiv = document.getElementById('add-track-message');
+        messageDiv.style.display = 'block';
+        messageDiv.innerHTML = `<pre>${JSON.stringify(data, null, 2)}</pre>`;
+      });
+    }
+
+    function updateTrack() {
+      const trackId = document.getElementById('update-track-id').value;
+      const name = document.getElementById('update-track-name').value;
+      const duration = document.getElementById('update-track-duration').value;
+      const hidden = document.getElementById('update-track-hidden').value === 'true';
+
+      const token = localStorage.getItem('token'); // Retrieve the token
+
+      fetch(`/tracks/${trackId}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ name, duration, hidden })
+      })
+      .then(response => {
+        const messageDiv = document.getElementById('update-track-message');
+        messageDiv.style.display = 'block';
+        if (response.status === 204) {
+          messageDiv.innerHTML = 'Track updated successfully.';
+        } else {
+          return response.json().then(data => {
+            messageDiv.innerHTML = `<pre>${JSON.stringify(data, null, 2)}</pre>`;
+          });
+        }
+      });
+    }
+
+    function deleteTrack() {
+      const trackId = document.getElementById('delete-track-id').value;
+      const token = localStorage.getItem('token'); // Retrieve the token
+
+      fetch(`/tracks/${trackId}`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        }
+      })
+      .then(response => response.json())
+      .then(data => {
+        console.log(data); // Log the JSON response to the console
+        const messageDiv = document.getElementById('delete-track-message');
+        messageDiv.style.display = 'block';
+        messageDiv.innerHTML = `<pre>${JSON.stringify(data, null, 2)}</pre>`;
+      });
+    }
+
+    function fetchFavorites() {
+      const category = document.getElementById('favorites-category').value;
+      const limit = document.getElementById('favorites-number-of-records').value || 5;
+      const offset = document.getElementById('favorites-number-of-records-to-skip').value || 0;
+
+      const token = localStorage.getItem('token'); // Retrieve the token
+      let url = `/favorites/${category}?limit=${limit}&offset=${offset}`;
+
+      fetch(url, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        }
+      })
+      .then(response => response.json())
+      .then(data => {
+        console.log(data); // Log the JSON response to the console
+        const messageDiv = document.getElementById('favorites-message');
+        const favoritesList = document.getElementById('favorites-list');
+        messageDiv.style.display = 'block';
+        messageDiv.innerHTML = `<pre>${JSON.stringify(data, null, 2)}</pre>`;
+        if (data.status === 200) {
+          favoritesList.innerHTML = `<pre>${JSON.stringify(data.data, null, 2)}</pre>`;
+        }
+      });
+    }
+
+    function addFavorite() {
+      const category = document.getElementById('add-favorite-category').value;
+      const itemId = document.getElementById('add-favorite-item-id').value;
+
+      const token = localStorage.getItem('token'); // Retrieve the token
+
+      fetch('/favorites/add-favorite', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ category, item_id: itemId })
+      })
+      .then(response => response.json())
+      .then(data => {
+        console.log(data); // Log the JSON response to the console
+        const messageDiv = document.getElementById('add-favorite-message');
+        messageDiv.style.display = 'block';
+        messageDiv.innerHTML = `<pre>${JSON.stringify(data, null, 2)}</pre>`;
+      });
+    }
+
+    function deleteFavorite() {
+      const favoriteId = document.getElementById('delete-favorite-id').value;
+      const token = localStorage.getItem('token'); // Retrieve the token
+
+      fetch(`/favorites/remove-favorite/${favoriteId}`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        }
+      })
+      .then(response => response.json())
+      .then(data => {
+        console.log(data); // Log the JSON response to the console
+        const messageDiv = document.getElementById('delete-favorite-message');
+        messageDiv.style.display = 'block';
+        messageDiv.innerHTML = `<pre>${JSON.stringify(data, null, 2)}</pre>`;
+      });
+    }
+
+    function logout() {
+      const token = localStorage.getItem('token'); // Retrieve the token
+      fetch('/auth/logout', {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        }
+      })
+      .then(response => response.json())
+      .then(data => {
+        console.log(data); // Log the JSON response to the console
+        if (data.status === 200) {
+          localStorage.removeItem('token'); // Remove the token
+          document.body.innerHTML = '<div class="message" style="margin-top: 20px; padding: 20px; border: 1px solid #ccc; background-color: #f9f9f9; text-align: center;">User logged out successfully</div>';
+        } else {
+          alert(`Logout failed: ${data.message}`);
+        }
+      });
+    }
+
+    let inactivityTimer;
+
+    function startInactivityTimer() {
+      clearTimeout(inactivityTimer);
+      inactivityTimer = setTimeout(() => {
+        alert('You have been logged out due to inactivity');
+        localStorage.removeItem('token'); // Remove the token
+        document.body.innerHTML = '<div class="message" style="margin-top: 20px; padding: 20px; border: 1px solid #ccc; background-color: #f9f9f9; text-align: center;">You have been logged out due to inactivity</div>';
+      }, 5 * 60 * 1000); // 5 minutes
+    }
+
+    document.addEventListener('mousemove', startInactivityTimer);
+    document.addEventListener('keypress', startInactivityTimer);
+
+    // Show signup page initially
+    showSection('signup');
+  </script>
+</body>
+</html>
