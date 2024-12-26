@@ -100,4 +100,23 @@ router.get('/logout', (req, res) => {
   });
 });
 
+// Define the /signup route
+router.post('/signup', async (req, res) => {
+  try {
+    const { username, password, email } = req.body;
+    if (!username || !password || !email) {
+      return res.status(400).json({ error: "All fields are required" });
+    }
+
+    // Hash the password and create the user
+    const hashedPassword = await bcrypt.hash(password, 10);
+    const newUser = await User.create({ username, password: hashedPassword, email });
+
+    return res.status(201).json({ message: "User created successfully", user: newUser });
+  } catch (error) {
+    console.error("Error in signup:", error);
+    return res.status(500).json({ error: "Internal Server Error" });
+  }
+});
+
 module.exports = router;

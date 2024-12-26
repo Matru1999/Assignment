@@ -10,6 +10,7 @@
       margin: 0;
       padding: 0;
       background-color: #f4f4f4;
+      overflow: hidden;
     }
     .container {
       width: 80%;
@@ -109,9 +110,15 @@
     <div id="signup" class="content">
       <h2>Signup</h2>
       <div class="signup-form">
-        <input type="text" id="signup-email" placeholder="Email">
-        <input type="password" id="signup-password" placeholder="Password">
-        <button onclick="signup()">Signup</button>
+        <form id="signupForm">
+          <label for="username">Username:</label>
+          <input type="text" id="username" name="username" required><br><br>
+          <label for="password">Password:</label>
+          <input type="password" id="password" name="password" required><br><br>
+          <label for="email">Email:</label>
+          <input type="email" id="email" name="email" required><br><br>
+          <button type="submit">Signup</button>
+        </form>
         <div id="signup-message" class="message" style="display:none;"></div>
       </div>
     </div>
@@ -316,25 +323,39 @@
       document.getElementById(sectionId).style.display = 'block';
     }
 
-    function signup() {
-      const email = document.getElementById('signup-email').value;
-      const password = document.getElementById('signup-password').value;
+    document.getElementById('signupForm').addEventListener('submit', async function(event) {
+      event.preventDefault();
 
-      fetch('/auth/signup', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ email, password })
-      })
-      .then(response => response.json())
-      .then(data => {
-        console.log(data); // Log the JSON response to the console
-        const messageDiv = document.getElementById('signup-message');
-        messageDiv.style.display = 'block';
-        messageDiv.innerHTML = `<pre>${JSON.stringify(data, null, 2)}</pre>`;
-      });
-    }
+      const username = document.getElementById('username').value;
+      const password = document.getElementById('password').value;
+      const email = document.getElementById('email').value;
+
+      try {
+          const response = await fetch('http://13.48.190.134:3000/auth/signup', {
+              method: 'POST',
+              headers: {
+                  'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({
+                  username: username,
+                  password: password,
+                  email: email,
+              }),
+          });
+
+          const data = await response.json();
+          if (response.ok) {
+              console.log('User signed up:', data);
+              alert('User signed up successfully!');
+          } else {
+              console.error('Error:', data);
+              alert('Error signing up: ' + data.error);
+          }
+      } catch (error) {
+          console.error('Error:', error);
+          alert('Error signing up: ' + error.message);
+      }
+    });
 
     function login() {
       const email = document.getElementById('email').value;
